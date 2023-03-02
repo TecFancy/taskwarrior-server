@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { Task } from './task.model';
 
@@ -9,5 +9,10 @@ export class TaskController {
   @Get('all')
   async getAllTasks(): Promise<Task[]> {
     return await this.taskService.getAllTasks();
+  }
+
+  @Get('/:tag')
+  async getTaskBySingleTag(@Param('tag') tag: string): Promise<Task[]> {
+    return await this.taskService.getTaskBySingleTag(tag);
   }
 }
