@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Query } from '@nestjs/common';
 import { spawn } from 'child_process';
 
 @Injectable()
-export class TasksService {
+export class TaskWarriorService {
   /** 获取所有 task */
   async getTasks(): Promise<any> {
     return new Promise((resolve, reject) => {
