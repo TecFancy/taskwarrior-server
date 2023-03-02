@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api'); // 所有接口统一前缀
+  // app.enableCors(); // 允许跨域
   await app.listen(53599);
 }
 bootstrap();
