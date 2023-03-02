@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 
 import { AppController } from './app.controller';
-import { TaskWarriorController } from './task-warrior/task-warrior.controller';
+import { TasksController } from './tasks/tasks.controller';
 
 import { AppService } from './app.service';
-import { TaskWarriorService } from './task-warrior/task-warrior.service';
+import { TasksService } from './tasks/tasks.service';
 
 @Module({
   imports: [],
-  controllers: [AppController, TaskWarriorController],
-  providers: [AppService, TaskWarriorService],
+  controllers: [AppController, TasksController],
+  providers: [AppService, TasksService],
 })
 export class AppModule {}
