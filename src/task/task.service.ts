@@ -30,7 +30,7 @@ export class TaskService {
   }
 
   /** 根据一个 tag 查询某些任务 */
-  async getTaskBySingleTag(tag: string): Promise<Task[]> {
+  async getTasksBySingleTag(tag: string): Promise<Task[]> {
     const taskWarriorProcess = spawn('task', [
       // rc.confirmation=no，rc.recurrence.confirmation=no 和 rc.dependency.confirmation=no 可以关闭 Task Warrior 的确认提示
       'rc.confirmation=no',

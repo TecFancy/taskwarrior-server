@@ -13,6 +13,6 @@ export class TaskController {
 
   @Get('/:tag')
   async getTaskBySingleTag(@Param('tag') tag: string): Promise<Task[]> {
-    return await this.taskService.getTaskBySingleTag(tag);
+    return await this.taskService.getTasksBySingleTag(tag);
   }
 }
