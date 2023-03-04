@@ -1,13 +1,12 @@
-import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
+import { spawn } from 'child_process';
 import { Injectable } from '@nestjs/common';
 
 import { Task } from './task.model';
 
 @Injectable()
 export class TaskService {
-  /** task 命令行工具参数 */
-  private getTaskArgs(params: string[]) {
-    return [
+  private getTasks(params: string): Promise<Task[]> {
+    const taskWarriorProcess = spawn('task', [
       // rc.confirmation=no，rc.recurrence.confirmation=no 和 rc.dependency.confirmation=no 可以关闭 Task Warrior 的确认提示
       'rc.confirmation=no',
       'rc.recurrence.confirmation=no',
@@ -16,25 +15,22 @@ export class TaskService {
       'rc.json.depends.array=yes',
       // rc.bulk=0 可以禁用 Task Warrior 的批量操作
       'rc.buld=0',
-      `${params.join(' ')}`,
+      `${params}`,
       'export',
-    ];
-  }
-
-  private getTasks(process: ChildProcessWithoutNullStreams): Promise<Task[]> {
+    ]);
     return new Promise((resolve, reject) => {
       let result = '';
       let error = '';
 
-      process.stdout.on('data', (data) => {
+      taskWarriorProcess.stdout.on('data', (data) => {
         result += data.toString();
       });
 
-      process.stderr.on('data', (data) => {
+      taskWarriorProcess.stderr.on('data', (data) => {
         error += data.toString();
       });
 
-      process.on('close', (code) => {
+      taskWarriorProcess.on('close', (code) => {
         if (code === 0) {
           resolve(JSON.parse(result));
         } else reject(error);
@@ -68,15 +64,11 @@ export class TaskService {
 
   /** 根据一个 tag 查询某些任务 */
   async getTasksBySingleTag(tag: string): Promise<Task[]> {
-    const taskArgs = this.getTaskArgs([`tag:${tag}`]);
-    const taskWarriorProcess = spawn('task', taskArgs);
-    return this.getTasks(taskWarriorProcess);
+    return this.getTasks(`tag:${tag}`);
   }
 
   /** 根据一个 project 查询某些任务 */
   async getTasksBySingleProject(project: string): Promise<Task[]> {
-    const taskArgs = this.getTaskArgs([`project:${project}`]);
-    const taskWarriorProcess = spawn('task', taskArgs);
-    return this.getTasks(taskWarriorProcess);
+    return this.getTasks(`project:${project}`);
   }
 }
