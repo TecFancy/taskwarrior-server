@@ -1,10 +1,11 @@
-import { spawn } from 'child_process';
+import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { Injectable } from '@nestjs/common';
 
 import { Task } from './task.model';
 
 @Injectable()
 export class TaskService {
+  /** task 命令行工具参数 */
   private getTaskArgs(params: string[]) {
     return [
       // rc.confirmation=no，rc.recurrence.confirmation=no 和 rc.dependency.confirmation=no 可以关闭 Task Warrior 的确认提示
@@ -18,6 +19,27 @@ export class TaskService {
       `${params.join(' ')}`,
       'export',
     ];
+  }
+
+  private getTasks(process: ChildProcessWithoutNullStreams): Promise<Task[]> {
+    return new Promise((resolve, reject) => {
+      let result = '';
+      let error = '';
+
+      process.stdout.on('data', (data) => {
+        result += data.toString();
+      });
+
+      process.stderr.on('data', (data) => {
+        error += data.toString();
+      });
+
+      process.on('close', (code) => {
+        if (code === 0) {
+          resolve(JSON.parse(result));
+        } else reject(error);
+      });
+    });
   }
 
   /** 查询所有任务 */
@@ -48,47 +70,13 @@ export class TaskService {
   async getTasksBySingleTag(tag: string): Promise<Task[]> {
     const taskArgs = this.getTaskArgs([`tag:${tag}`]);
     const taskWarriorProcess = spawn('task', taskArgs);
-    return new Promise((resolve, reject) => {
-      let result = '';
-      let error = '';
-
-      taskWarriorProcess.stdout.on('data', (data) => {
-        result += data.toString();
-      });
-
-      taskWarriorProcess.stderr.on('data', (data) => {
-        error += data.toString();
-      });
-
-      taskWarriorProcess.on('close', (code) => {
-        if (code === 0) {
-          resolve(JSON.parse(result));
-        } else reject(error);
-      });
-    });
+    return this.getTasks(taskWarriorProcess);
   }
 
   /** 根据一个 project 查询某些任务 */
   async getTasksBySingleProject(project: string): Promise<Task[]> {
     const taskArgs = this.getTaskArgs([`project:${project}`]);
     const taskWarriorProcess = spawn('task', taskArgs);
-    return new Promise((resolve, reject) => {
-      let result = '';
-      let error = '';
-
-      taskWarriorProcess.stdout.on('data', (data) => {
-        result += data.toString();
-      });
-
-      taskWarriorProcess.stderr.on('data', (data) => {
-        error += data.toString();
-      });
-
-      taskWarriorProcess.on('close', (code) => {
-        if (code === 0) {
-          resolve(JSON.parse(result));
-        } else reject(error);
-      });
-    });
+    return this.getTasks(taskWarriorProcess);
   }
 }
