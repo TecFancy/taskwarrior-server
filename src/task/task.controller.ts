@@ -2,7 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { Task } from './task.model';
 
-@Controller('task')
+@Controller('/v1/task')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
@@ -11,8 +11,15 @@ export class TaskController {
     return await this.taskService.getAllTasks();
   }
 
-  @Get('/:tag')
-  async getTaskBySingleTag(@Param('tag') tag: string): Promise<Task[]> {
+  @Get('/tag/:tag')
+  async getTasksBySingleTag(@Param('tag') tag: string): Promise<Task[]> {
     return await this.taskService.getTasksBySingleTag(tag);
+  }
+
+  @Get('/project/:project')
+  async getTasksBySingleProject(
+    @Param('project') project: string,
+  ): Promise<Task[]> {
+    return await this.taskService.getTasksBySingleProject(project);
   }
 }
