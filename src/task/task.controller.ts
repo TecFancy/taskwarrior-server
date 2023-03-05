@@ -18,7 +18,6 @@ export class TaskController {
         params.push(`${key}:${value}`);
       }
     }
-    console.log(params);
     return await this.taskService.getTasks(params);
   }
 
