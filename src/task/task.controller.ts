@@ -12,14 +12,19 @@ export class TaskController {
   }
 
   @Get('/tag/:tag')
-  async getTasksBySingleTag(@Param('tag') tag: string): Promise<Task[]> {
+  async getTasksByTagFilter(@Param('tag') tag: string): Promise<Task[]> {
     return await this.taskService.getTasks(`tag:${tag}`);
   }
 
   @Get('/project/:project')
-  async getTasksBySingleProject(
+  async getTasksByProjectFilter(
     @Param('project') project: string,
   ): Promise<Task[]> {
     return await this.taskService.getTasks(`project:${project}`);
+  }
+
+  @Get('/due/:due')
+  async getTasksByDueFilter(@Param('due') due: string): Promise<Task[]> {
+    return await this.taskService.getTasks(`due:${due}`);
   }
 }
