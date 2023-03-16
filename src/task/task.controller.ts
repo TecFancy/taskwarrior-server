@@ -1,12 +1,15 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, Req, Res } from '@nestjs/common';
+
 
 import { Task } from './task.model';
 import { TaskService } from './task.service';
 import { TaskFiltersDto } from './task.filters.dto';
 
+import type { IncomingMessage, ServerResponse } from 'http';
+
 @Controller('/v1/task')
 export class TaskController {
-  constructor(private readonly taskService: TaskService) {}
+  constructor(private readonly taskService: TaskService) { }
 
   @Get()
   async getTasksByFilters(@Query() filterDto: TaskFiltersDto): Promise<Task[]> {
@@ -41,5 +44,27 @@ export class TaskController {
   @Get('/due/:due')
   async getTasksByDueFilter(@Param('due') due: string): Promise<Task[]> {
     return await this.taskService.getTasks([`due:${due}`]);
+  }
+
+  // TODO 事件流控制器示例
+  // curl -H "Accept: text/event-stream" -N http://localhost:53599/api/v1/task/events
+  @Get('/events')
+  async getEvents(@Req() req: IncomingMessage, @Res() res: ServerResponse) {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    res.write(`data: ready to go~\n\n`)
+
+    // 每 5 秒向客户端推送一个消息
+    setInterval(() => {
+      res.write(`data: ${new Date().toISOString()}\n`);
+    }, 1000);
+
+    // 当客户端断开连接时，停止向客户端推送消息
+    req.on('close', () => {
+      console.log('Connection closed');
+      res.end();
+    });
   }
 }
