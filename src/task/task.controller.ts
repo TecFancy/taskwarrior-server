@@ -1,5 +1,4 @@
-import { Controller, Get, Param, Query, Req, Res } from '@nestjs/common';
-
+import { Body, Controller, Get, Param, Post, Query, Req, Res } from '@nestjs/common';
 
 import { Task } from './task.model';
 import { TaskService } from './task.service';
@@ -54,7 +53,7 @@ export class TaskController {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    res.write(`data: ready to go~\n\n`)
+    res.write(`data: ready to go~\n\n`);
 
     // 每 5 秒向客户端推送一个消息
     setInterval(() => {
@@ -66,5 +65,11 @@ export class TaskController {
       console.log('Connection closed');
       res.end();
     });
+  }
+
+  // curl -X POST -H "Content-Type: application/json" http://localhost:53599/api/v1/task/add -d '{"description": "Read a new book 8.", "due": "2022-12-21T18:15:00"}'
+  @Post('add')
+  async addTask(@Body() params: { [key: string]: any }[]): Promise<any> {
+    return await this.taskService.addTask(params);
   }
 }
