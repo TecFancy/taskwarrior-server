@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Post, Query, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
 
 import { Task } from './task.model';
 import { TaskService } from './task.service';
@@ -71,5 +81,12 @@ export class TaskController {
   @Post('add')
   async addTask(@Body() params: { [key: string]: any }[]): Promise<any> {
     return await this.taskService.addTask(params);
+  }
+
+  // curl -X DELETE -H "Content-Type: application/json" http://localhost:53599/api/v1/task -d '{"id": "this is id of a task"}'
+  @Delete()
+  async delTask(@Body() params: { id: string }): Promise<any> {
+    console.log('params', params);
+    return await this.taskService.delTask(params?.id);
   }
 }

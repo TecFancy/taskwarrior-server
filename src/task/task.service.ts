@@ -129,4 +129,47 @@ export class TaskService {
       });
     });
   }
+
+  async delTask(uuid: string): Promise<any> {
+    // TODO 创建用户数据文件夹
+    this.createDataDirRecursive();
+
+    const taskArgs = [
+      'rc.confirmation=no',
+      'rc.recurrence.confirmation=no',
+      'rc.dependency.confirmation=no',
+      'rc.json.depends.array=yes',
+      'rc.buld=0',
+      'delete',
+      uuid
+    ];
+
+    const taskWarriorProcess = spawn('task', taskArgs, {
+      shell: true,
+      env: {
+        ...process.env,
+        TASKRC: path.join(__dirname, '../../.taskdata/testuser/.taskrc'), // TODO 根据用户不同选择不同的配置文件
+        TASKDATA: path.join(__dirname, '../../.taskdata/testuser/.data'), // TODO 根据用户不同选择不同的数据存放位置
+      },
+    });
+
+    return new Promise((resolve, reject) => {
+      let result = '';
+      let error = '';
+
+      taskWarriorProcess.stdout.on('data', (data) => {
+        result += data.toString();
+      });
+
+      taskWarriorProcess.stderr.on('data', (data) => {
+        error += data.toString();
+      });
+
+      taskWarriorProcess.on('close', (code) => {
+        if (code === 0) {
+          resolve(result);
+        } else reject(error);
+      });
+    });
+  }
 }
